@@ -30,37 +30,32 @@ def is_server_respond_with_200(url):
         return False
 
 
-def get_domain_expiration_date(domain_name):
+def get_domain_name(url):
+    return re.search(r'\w+\.\w+', url).group(0)
+
+
+def get_domain_expiration_status(domain_name):
     args = ['whois', domain_name]
     process = subprocess.Popen(args, stdout=subprocess.PIPE)
     whois_msg = process.communicate()[0].decode('utf-8')
     expiry_date = re.findall(r'Registry Expiry Date: (\d{4}-\d{2}-\d{2})',
                              whois_msg)[0]
-    return expiry_date
-
-
-def get_domain_name(url):
-    return re.search(r'\w+\.\w+', url).group(0)
+    return "OK" if expiry_date > str(date.today() +
+                                     timedelta(days=30)) else "Not OK"
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
+    try:
         urls_list = load_urls4check(sys.argv[1])
         if urls_list is not None:
             for current_url in urls_list:
                 if is_server_respond_with_200(current_url):
                     current_domain_name = get_domain_name(current_url)
-                    domain_expire_date = get_domain_expiration_date(
-                                                        current_domain_name)
-                    if domain_expire_date > str(date.today()+
-                                                        timedelta(days=30)):
-                        exp_date_check = "OK"
-                    else:
-                        exp_date_check = "Not OK"
                     print("{site_url}: OK\nExpiry date check: {expiry_date}\n"
                           .format(site_url=current_url,
-                                  expiry_date=exp_date_check))
+                                  expiry_date=get_domain_expiration_status(
+                                                        current_domain_name)))
         else:
-            print('Enter a valid path or filename.')
-    else:
+                print('Enter a valid path or filename.')
+    except IndexError:
         print("You must enter a filename.")
