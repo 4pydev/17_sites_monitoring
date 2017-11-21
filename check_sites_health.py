@@ -10,13 +10,10 @@ from requests.exceptions import RequestException
 
 
 def load_urls4check(path):
-    try:
-        with open(path) as file:
-            text_urls = file.read()
-            urls_as_list = text_urls.split('\n')
-            return urls_as_list
-    except FileNotFoundError:
-        return None
+    with open(path) as file:
+        text_urls = file.read()
+        urls_as_list = text_urls.split('\n')
+        return urls_as_list
 
 
 def is_server_respond_with_200(url):
@@ -47,15 +44,14 @@ def get_domain_expiration_status(domain_name):
 if __name__ == '__main__':
     try:
         urls_list = load_urls4check(sys.argv[1])
-        if urls_list is not None:
-            for current_url in urls_list:
-                if is_server_respond_with_200(current_url):
-                    current_domain_name = get_domain_name(current_url)
-                    print("{site_url}: OK\nExpiry date check: {expiry_date}\n"
-                          .format(site_url=current_url,
-                                  expiry_date=get_domain_expiration_status(
-                                                        current_domain_name)))
-        else:
-                print('Enter a valid path or filename.')
+        for current_url in urls_list:
+            if is_server_respond_with_200(current_url):
+                current_domain_name = get_domain_name(current_url)
+                print("{site_url}: OK\nExpiry date check: {expiry_date}\n"
+                      .format(site_url=current_url,
+                              expiry_date=get_domain_expiration_status(
+                                                    current_domain_name)))
     except IndexError:
         print("You must enter a filename.")
+    except FileNotFoundError:
+        print("Enter a valid filename.")
