@@ -46,11 +46,10 @@ if __name__ == '__main__':
         urls_list = load_urls4check(sys.argv[1])
         for current_url in urls_list:
             if is_server_respond_with_200(current_url):
-                current_domain_name = get_domain_name(current_url)
                 print("{site_url}: OK\nExpiry date check: {expiry_date}\n"
                       .format(site_url=current_url,
                               expiry_date=get_domain_expiration_status(
-                                                    current_domain_name)))
+                                  get_domain_name(current_url))))
     except IndexError:
         print("You must enter a filename.")
     except FileNotFoundError:
