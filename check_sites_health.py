@@ -16,12 +16,12 @@ def load_urls4check(path):
             urls_as_list = text_urls.split('\n')
             return urls_as_list
     except FileNotFoundError:
-        sys.exit('Enter a valid path or filename.')
+        return None
 
 
 def is_server_respond_with_200(url):
     try:
-        if requests.get(url).status_code == 200:
+        if requests.get(url).ok:
             return True
     except RequestException:
         print("{} - invalid URL\n".format(url))
@@ -46,16 +46,21 @@ def get_domain_name(url):
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         urls_list = load_urls4check(sys.argv[1])
-        for current_url in urls_list:
-            if is_server_respond_with_200(current_url):
-                current_domain_name = get_domain_name(current_url)
-                domain_expire_date = get_domain_expiration_date(
-                                                    current_domain_name)
-                if domain_expire_date > str(date.today()+timedelta(days=30)):
-                    exp_date_check = "OK"
-                else:
-                    exp_date_check = "Not OK"
-                print("{site_url}: OK\nExpiry date check: {expiry_date}\n"
-                      .format(site_url=current_url, expiry_date=exp_date_check))
+        if urls_list is not None:
+            for current_url in urls_list:
+                if is_server_respond_with_200(current_url):
+                    current_domain_name = get_domain_name(current_url)
+                    domain_expire_date = get_domain_expiration_date(
+                                                        current_domain_name)
+                    if domain_expire_date > str(date.today()+
+                                                        timedelta(days=30)):
+                        exp_date_check = "OK"
+                    else:
+                        exp_date_check = "Not OK"
+                    print("{site_url}: OK\nExpiry date check: {expiry_date}\n"
+                          .format(site_url=current_url,
+                                  expiry_date=exp_date_check))
+        else:
+            print('Enter a valid path or filename.')
     else:
         print("You must enter a filename.")
