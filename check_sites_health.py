@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import subprocess
 import re
 import requests
@@ -39,8 +39,8 @@ def get_domain_expiration_status(domain_name):
         whois_msg = process.communicate()[0].decode('utf-8')
         expiry_date = re.findall(r'Registry Expiry Date: (\d{4}-\d{2}-\d{2})',
                                  whois_msg)[0]
-        return "OK" if expiry_date > (date.today() +
-                                      timedelta(days=30)).isoformat() \
+        return "OK" if datetime.strptime(expiry_date, '%Y-%m-%d').date() > \
+                       date.today() + timedelta(days=30) \
             else "Not OK"
     except TypeError:
         return "Not OK"
