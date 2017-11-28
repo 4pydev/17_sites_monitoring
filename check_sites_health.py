@@ -18,11 +18,11 @@ def load_urls4check(path):
 def get_site_status(url):
     try:
         if requests.get(url).ok:
-            return "OK"
+            return True
     except RequestException:
-        return "Not OK"
+        return False
     else:
-        return "Not OK"
+        return False
 
 
 def get_domain_name(url):
@@ -39,18 +39,18 @@ def get_domain_expiration_status(domain_name):
         whois_msg = process.communicate()[0].decode('utf-8')
         expiry_date = re.findall(r'Registry Expiry Date: (\d{4}-\d{2}-\d{2})',
                                  whois_msg)[0]
-        return "OK" if datetime.strptime(expiry_date, '%Y-%m-%d').date() > \
+        return True if datetime.strptime(expiry_date, '%Y-%m-%d').date() > \
                        date.today() + timedelta(days=30) \
-            else "Not OK"
+            else False
     except TypeError:
-        return "Not OK"
+        return False
 
 
 def print_site_status(url, site_status, expiration_status):
     print("{site_url}: {site_status}\nExpiry date check: {expiry_status}\n"
           .format(site_url=url,
-                  site_status=site_status,
-                  expiry_status=expiration_status))
+                  site_status="OK" if site_status else "Not OK",
+                  expiry_status="OK" if expiration_status else "Not OK"))
 
 
 if __name__ == '__main__':
